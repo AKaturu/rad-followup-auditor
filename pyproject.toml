@@ -1,0 +1,101 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rad-followup-auditor"
+version = "0.1.0"
+description = "Extract and track incidental finding follow-up recommendations from radiology reports."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Abinav Katuru" }]
+keywords = [
+    "radiology",
+    "follow-up",
+    "incidental-findings",
+    "nlp",
+    "quality-improvement",
+    "patient-safety",
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "pandera>=0.20",
+    "plotly>=5.20",
+    "typer>=0.12",
+    "rich>=13.7",
+    "jinja2>=3.1",
+    "weasyprint>=60",
+    "fpdf2>=2.7",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.36"]
+packaging = ["pyinstaller>=6.0"]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pandas-stubs",
+    "types-Jinja2",
+    "streamlit>=1.36",
+]
+
+[project.scripts]
+rad-followup-auditor = "rad_followup_auditor.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/AKaturu/rad-followup-auditor"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"rad_followup_auditor.report" = ["templates/*.html", "templates/*.css"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = ["pandera.*", "plotly.*", "weasyprint.*", "streamlit.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+]
