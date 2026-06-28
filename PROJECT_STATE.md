@@ -9,7 +9,15 @@ rad-followup-auditor
 Extract and structure incidental finding follow-up recommendations from free-text radiology reports, enabling adherence tracking, wording-variability analysis, and quality-improvement surveillance.
 
 ### Current Status
-Phase 1 - MVP complete. Core extraction engine, CLI, synthetic data generator, Streamlit dashboard, HTML/PDF report generation, and test suite implemented.
+Phase 1 - MVP complete. Core extraction engine, CLI, synthetic data generator, Streamlit dashboard, HTML/PDF report generation, test suite, demo media tooling, and native release automation implemented.
+
+### 2026-06-28 GitHub Polish And Releases
+- Added reproducible README demo media generated from the real synthetic CLI demo.
+- Added `scripts/build_native.py` for local and CI PyInstaller builds.
+- Added a `Desktop/native release` GitHub Actions workflow for Windows, macOS, and Linux artifacts.
+- Added release and demo-media documentation under `docs/`.
+- Refreshed the README with badges, demo media, safer scope language, repository guide, and release instructions.
+- Next verification: regenerate media, run tests, build a local Windows native package, push to GitHub, and trigger a release workflow.
 
 ---
 

@@ -10,8 +10,10 @@ venv/
 env/
 build/
 dist/
+*.spec
 *.egg-info/
 *.egg
+.tmp/
 .DS_Store
 Thumbs.db
 outputs/
