@@ -1,6 +1,6 @@
 # rad-followup-auditor
 
-[![CI](https://github.com/AKaturu/rad-followup-auditor/actions/workflows/ci.yml/badge.svg)](https://github.com/AKaturu/rad-followup-auditor/actions/workflows/ci.yml)
+[![CI](https://github.com/AKaturu/rad-followup-auditor/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AKaturu/rad-followup-auditor/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
