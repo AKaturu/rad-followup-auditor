@@ -89,7 +89,7 @@ warn_redundant_casts = true
 no_implicit_optional = true
 
 [[tool.mypy.overrides]]
-module = ["pandera.*", "plotly.*", "weasyprint.*", "streamlit.*"]
+module = ["numpy.*", "pandera.*", "sklearn.*", "plotly.*", "weasyprint.*", "streamlit.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
