@@ -17,7 +17,7 @@ class NegationResult:
 def check_negation(
     text: str,
     trigger_pos: int,
-    window_chars: int = 30,
+    window_chars: int = 75,
 ) -> NegationResult:
     start = 0 if trigger_pos < 0 else max(0, trigger_pos - window_chars)
 

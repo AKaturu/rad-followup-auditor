@@ -26,7 +26,7 @@ python scripts/run_validation.py tests/data/validation_reports.csv outputs/valid
 - Recommendation sensitivity: 1.000
 - Recommendation precision: 0.934
 - Recommendation F1: 0.966
-- Macro field accuracy: 0.788
+- Macro field accuracy: 0.773
 
 ## Field Metrics
 
@@ -34,9 +34,9 @@ python scripts/run_validation.py tests/data/validation_reports.csv outputs/valid
 |---|---:|---:|---:|---:|---:|
 | finding | 0.753 | 0.711 | 0.762 | 0.735 | 239 |
 | recommended_modality | 1.000 | 1.000 | 1.000 | 1.000 | 239 |
-| interval_value | 1.000 | 1.000 | 1.000 | 1.000 | 199 |
-| interval_unit | 1.000 | 1.000 | 1.000 | 1.000 | 199 |
-| urgency | 0.617 | 0.887 | 0.576 | 0.698 | 231 |
+| interval_value | 0.997 | 1.000 | 0.995 | 0.997 | 199 |
+| interval_unit | 0.997 | 1.000 | 0.995 | 0.997 | 199 |
+| urgency | 0.467 | 0.838 | 0.381 | 0.524 | 231 |
 | anatomic_region | 0.683 | 0.617 | 0.640 | 0.628 | 239 |
 | has_explicit_recommendation | 0.943 | 0.943 | 0.943 | 0.943 | 300 |
 | is_negated | 0.973 | 0.973 | 0.973 | 0.973 | 300 |

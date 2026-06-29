@@ -78,9 +78,12 @@ _anatomic_re = re.compile(
 
 
 def extract_modality(text: str) -> str | None:
+    from ..config import MODALITIES
+
     match = _modality_re.search(text)
     if match:
-        return match.group(0)
+        raw = match.group(0).lower()
+        return MODALITIES.get(raw, raw)
     return None
 
 
