@@ -11,17 +11,19 @@
 
 Incidental findings often include free-text recommendations such as "CT chest in 6 months" or "MRI abdomen recommended." Those recommendations can be hard to monitor across a large report corpus. This project turns report text into reviewable CSV outputs so teams can audit follow-up language, find ambiguous recommendations, and prioritize manual review.
 
-**Validation status:** Software functionality has been tested using synthetic data as described below. This project has not undergone prospective clinical validation and is not intended for independent clinical decision-making.
+## Evidence Status
 
 | Evidence | Status |
 |---|---|
-| Unit tests | Complete (58 tests) |
-| Synthetic end-to-end test | Complete |
+| Unit and integration tests | Complete (58 tests) |
+| Synthetic end-to-end evaluation | Complete |
 | Synthetic validation benchmark | Complete (300 reports; recommendation F1 0.966) |
 | Public-data evaluation | Not completed |
-| Expert review | Not completed |
+| Independent expert review | Not completed |
 | Institutional validation | Not completed |
 | Prospective clinical validation | Not completed |
+
+This software is a research prototype and is not intended for independent clinical decision-making.
 
 ## Capabilities
 
@@ -96,7 +98,7 @@ See [docs/demo-media.md](docs/demo-media.md) for details.
 
 ## Releases
 
-The [Desktop/native release](.github/workflows/release.yml) workflow builds downloadable CLI archives for Windows, macOS, and Linux. It can be run manually from GitHub Actions, or by pushing a tag such as `v0.1.0`.
+Download the current Windows, macOS, or Linux archive from the [Releases page](https://github.com/AKaturu/rad-followup-auditor/releases). SHA-256 checksum sidecars are attached to the release assets.
 
 See [docs/release.md](docs/release.md) for release steps.
 
