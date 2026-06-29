@@ -1,8 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Synthetic 300-report validation benchmark corpus.
+- Validation runner with accuracy, precision, recall, F1, category summaries, and confusion matrix outputs.
+- Validation benchmark documentation under `docs/validation/`.
+
+### Improved
+
+- Finding-context extraction now strips section labels and trailing recommendation phrases.
+
 ## 0.1.0 - 2026-06-28
 
 ### Added
+
 - Pattern-based follow-up recommendation extraction from free-text radiology reports
 - Negation handling (direct negation, finding negation, clinical correlation)
 - Modality extraction with canonical mapping (CT, MRI, US, PET, etc.)

@@ -48,7 +48,12 @@ def clean(text: str) -> str:
     return ANSI_RE.sub("", text).replace("\r\n", "\n").strip()
 
 
-def wrap_line(draw: ImageDraw.ImageDraw, text: str, max_width: int, fnt: ImageFont.ImageFont) -> list[str]:
+def wrap_line(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    max_width: int,
+    fnt: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+) -> list[str]:
     words = text.split()
     if not words:
         return [""]
@@ -70,7 +75,7 @@ def draw_wrapped(
     xy: tuple[int, int],
     text: str,
     max_width: int,
-    fnt: ImageFont.ImageFont,
+    fnt: ImageFont.FreeTypeFont | ImageFont.ImageFont,
     fill: str,
     line_height: int,
 ) -> int:

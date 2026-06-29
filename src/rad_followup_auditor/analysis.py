@@ -33,8 +33,8 @@ def load_and_extract(
 ) -> pd.DataFrame:
     try:
         df = pd.read_csv(csv_path)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+    except FileNotFoundError as err:
+        raise FileNotFoundError(f"CSV file not found: {csv_path}") from err
     df = validate_input(df)
     result = extract_all(df, text_column=text_column, config=config)
     return validate_output(result)
