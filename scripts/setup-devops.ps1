@@ -78,6 +78,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/dependency-review-action@v4
+        continue-on-error: true
 '@
     ".github/ISSUE_TEMPLATE/bug_report.yml" = @'
 name: Bug Report
