@@ -9,99 +9,52 @@
 
 ![rad-followup-auditor demo](docs/assets/demo.gif)
 
-`rad-followup-auditor` examines de-identified radiology report text, identifies follow-up recommendations, and converts them into structured fields. The CLI and Streamlit dashboard support quality improvement workflows such as overdue recommendation review, wording variability analysis, and detection of missing intervals or modality mismatches.
+Incidental findings often include free-text recommendations such as "CT chest in 6 months" or "MRI abdomen recommended." Those recommendations can be hard to monitor across a large report corpus. This project turns report text into reviewable CSV outputs so teams can audit follow-up language, find ambiguous recommendations, and prioritize manual review.
+
+**Validation status:** Software functionality has been tested using synthetic or public data as described below. This project has not undergone prospective clinical validation and is not intended for independent clinical decision-making.
+
+| Evidence | Status |
+|---|---|
+| Unit tests | Complete (44 tests) |
+| Synthetic end-to-end test | Complete |
+| Public-data evaluation | Not completed |
+| Expert review | Not completed |
+| Institutional validation | Not completed |
+| Prospective clinical validation | Not completed |
+
+## Capabilities
+
+- Parses free-text radiology reports for follow-up recommendations
+- Converts recommendations to structured fields: finding, modality, interval, urgency, anatomic region
+- Detects negated recommendations ("No follow-up needed")
+- Assigns confidence levels and flags cases needing manual review
+- Generates CSV summaries and HTML reports with optional PDF export
+- Streamlit dashboard for interactive review
 
 ## Quick Start
 
-Install from source:
-
 ```bash
-git clone https://github.com/AKaturu/rad-followup-auditor.git
-cd rad-followup-auditor
-python -m pip install -e ".[app]"
+pip install -e ".[app]"
 rad-followup-auditor demo --output outputs/demo --n 50 --seed 42 --no-pdf
 rad-followup-auditor serve
 ```
 
-Prefer a no-Python install? Download a Windows, macOS, or Linux archive from the [Releases](https://github.com/AKaturu/rad-followup-auditor/releases) page after a release build is published.
+## Limitations
 
-## Why It Exists
+- This tool is for research, quality improvement, and workflow prototyping
+- It is not a medical device and should not be used as the sole source for clinical decisions
+- Use synthetic or properly de-identified report text unless your institution has approved a compliant local workflow
 
-Incidental findings often include free-text recommendations such as "CT chest in 6 months" or "MRI abdomen recommended." Those recommendations can be hard to monitor across a large report corpus. This project turns report text into reviewable CSV outputs so teams can audit follow-up language, find ambiguous recommendations, and prioritize manual review.
+## Documentation
 
-## What It Does
-
-- Parses free-text radiology reports for follow-up recommendations.
-- Converts recommendations to structured fields: finding, modality, interval, urgency, and anatomic region.
-- Detects negated recommendations such as "No follow-up needed."
-- Assigns confidence levels and flags cases that need manual review.
-- Generates CSV summaries and an HTML report from synthetic or de-identified report inputs.
-- Provides a Streamlit dashboard for interactive review.
-
-## CLI Commands
-
-| Command | Description |
+| Topic | File |
 |---|---|
-| `rad-followup-auditor demo` | Generate synthetic reports and run extraction. |
-| `rad-followup-auditor extract --csv <file>` | Extract recommendations from a CSV. |
-| `rad-followup-auditor report --csv <file>` | Generate an HTML report with optional PDF export. |
-| `rad-followup-auditor serve` | Launch the Streamlit dashboard. |
+| Release steps | [docs/release.md](docs/release.md) |
+| Demo media generation | [docs/demo-media.md](docs/demo-media.md) |
+| Input CSV format and output fields | [README.md](README.md) (Input CSV Format section) |
+| Contribution guide | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Security reporting | [SECURITY.md](SECURITY.md) |
 
-## Input CSV Format
+## License
 
-```csv
-report_id,report_text
-R001,"FINDINGS: 8 mm pulmonary nodule in the right upper lobe. IMPRESSION: Recommend CT chest in 6 months."
-R002,"FINDINGS: Normal examination. IMPRESSION: No further imaging recommended."
-```
-
-## Output Fields
-
-| Field | Meaning |
-|---|---|
-| `finding` | Finding requiring follow-up, such as `pulmonary nodule`. |
-| `recommended_modality` | CT, MRI, ultrasound, or other recommended modality. |
-| `interval_value` / `interval_unit` | Follow-up timing, such as `6 months`. |
-| `urgency` | Routine, urgent, or other urgency label. |
-| `anatomic_region` | Body region inferred from the recommendation. |
-| `confidence` | High, medium, or low extraction confidence. |
-| `review_required` | Boolean flag for manual review. |
-| `is_negated` | Recommendation was negated or explicitly unnecessary. |
-
-## Repository Guide
-
-| Path | Purpose |
-|---|---|
-| `src/rad_followup_auditor/extraction/` | Rule-based extraction engine, negation handling, and patterns. |
-| `src/rad_followup_auditor/cli.py` | CLI commands for demo, extract, report, and dashboard launch. |
-| `src/rad_followup_auditor/app/main.py` | Streamlit dashboard. |
-| `src/rad_followup_auditor/data/synthetic.py` | Synthetic radiology report generator. |
-| `src/rad_followup_auditor/report/` | HTML/PDF report generation. |
-| `scripts/build_native.py` | Native executable packaging helper for GitHub Actions. |
-| `scripts/generate_demo_media.py` | Reproducible README media generator. |
-| `tests/` | Extraction, negation, normalizer, and synthetic data tests. |
-
-## Demo Media
-
-The README animation is generated from a real synthetic CLI demo run:
-
-```bash
-python -m pip install -e ".[media]"
-python scripts/generate_demo_media.py
-```
-
-See [docs/demo-media.md](docs/demo-media.md) for details.
-
-## Releases
-
-The [Desktop/native release](.github/workflows/release.yml) workflow builds downloadable CLI archives for Windows, macOS, and Linux. It can be run manually from GitHub Actions, or by pushing a tag such as `v0.1.0`.
-
-See [docs/release.md](docs/release.md) for release steps.
-
-## Safety And Scope
-
-This tool is intended for research, quality improvement, and workflow prototyping. It is not a medical device and should not be used as the sole source for clinical decisions. Use synthetic or properly de-identified report text unless your institution has approved a compliant local workflow.
-
-## Publication Angle
-
-"An open-source framework for extracting and tracking incidental finding follow-up recommendations from radiology reports."
+MIT. See [LICENSE](LICENSE).

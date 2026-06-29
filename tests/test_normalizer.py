@@ -53,14 +53,14 @@ class TestExtractInterval:
 class TestExtractModality:
     def test_ct(self) -> None:
         assert extract_modality("CT") == "CT"
-        assert extract_modality("ct") == "ct"
+        assert extract_modality("ct") == "CT"
 
     def test_mri(self) -> None:
         assert extract_modality("MRI") == "MRI"
 
     def test_ultrasound(self) -> None:
-        assert extract_modality("ultrasound") == "ultrasound"
-        assert extract_modality("US") == "US"
+        assert extract_modality("ultrasound") == "Ultrasound"
+        assert extract_modality("US") == "Ultrasound"
 
     def test_no_modality(self) -> None:
         assert extract_modality("no imaging needed") is None

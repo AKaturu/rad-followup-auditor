@@ -98,7 +98,7 @@ class ExtractionEngine:
         return extract_modality(text)
 
     def _extract_finding_context(self, text: str, match_start: int) -> str:
-        before = text[max(0, match_start - 75) : match_start]
+        before = text[max(0, match_start - self.config.window_chars_before) : match_start]
         sentences = re.split(r"[.!?\n]+", before)
         finding = sentences[-1].strip() if sentences else ""
         return normalize_finding(finding) if finding else ""
@@ -153,8 +153,8 @@ class ExtractionEngine:
         result.has_explicit_recommendation = True
 
         rec_end = best_rec_start + len(best_rec_text)
-        window_start = max(0, best_rec_start - 75)
-        window_end = min(len(text), rec_end + 100)
+        window_start = max(0, best_rec_start - self.config.window_chars_before)
+        window_end = min(len(text), rec_end + self.config.window_chars_after)
         rec_window = text[window_start:window_end]
 
         result.recommendation_text = best_rec_text
@@ -162,10 +162,6 @@ class ExtractionEngine:
         result.finding = self._extract_finding_context(text, best_rec_start)
 
         result.recommended_modality = self._extract_modality(rec_window)
-        if result.recommended_modality:
-            canonical = MODALITIES.get(result.recommended_modality)
-            if canonical:
-                result.recommended_modality = canonical
 
         interval_val, interval_unit = extract_interval(rec_window)
         if (
