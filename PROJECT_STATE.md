@@ -19,6 +19,14 @@ Phase 1 - MVP complete. Core extraction engine, CLI, synthetic data generator, S
 - Refreshed the README with badges, demo media, safer scope language, repository guide, and release instructions.
 - Next verification: regenerate media, run tests, build a local Windows native package, push to GitHub, and trigger a release workflow.
 
+### 2026-06-28 Validation Benchmark Build-Out
+- Added a deterministic 300-report synthetic validation corpus under `tests/data/`.
+- Added `scripts/build_validation_corpus.py` and `scripts/run_validation.py`.
+- Validation outputs include row-level results, metrics JSON, category summaries, confusion matrix, and Markdown report.
+- Current synthetic benchmark: recommendation sensitivity 1.000, precision 0.934, F1 0.966, macro field accuracy 0.788.
+- Improved finding-context extraction by stripping section labels and trailing recommendation phrases.
+- Important limitation: this is a synthetic benchmark for regression testing, not a clinical validation claim.
+
 ---
 
 ## Completed Features
@@ -58,7 +66,7 @@ Phase 1 - MVP complete. Core extraction engine, CLI, synthetic data generator, S
 - PDF export via WeasyPrint with fpdf2 fallback
 
 ### Feature: Testing
-- 44 tests covering extraction engine, negation handler, normalizer, and synthetic data
+- 47 tests covering extraction engine, negation handler, normalizer, synthetic data, and validation tooling
 - Ruff linting configured and passing
 - GitHub Actions CI workflow (lint, type check, test, demo smoke test)
 
@@ -82,6 +90,8 @@ All requested MVP surfaces are implemented.
 ### Remaining Work
 - Add more recommendation patterns based on real-world radiology report analysis
 - Full external validation with manually annotated radiology reports
+- Replace the synthetic validation benchmark with or augment it by a de-identified two-reviewer corpus
+- Add configurable custom pattern definitions and JSON output support
 - PyPI publishing
 
 ---

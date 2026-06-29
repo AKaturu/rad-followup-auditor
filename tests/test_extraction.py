@@ -41,6 +41,22 @@ class TestExtractionEngine:
         assert result.confidence == "high"
         assert not result.is_negated
 
+    def test_finding_context_strips_section_label(self, engine: ExtractionEngine) -> None:
+        text = (
+            "FINDINGS: Pulmonary nodule is present. "
+            "IMPRESSION: Pulmonary nodule is present; recommend CT chest in 6 months."
+        )
+        result = engine.extract_report(text, report_id="R001A")
+        assert result.finding == "pulmonary nodule is present"
+
+    def test_finding_context_handles_conclusion_label(self, engine: ExtractionEngine) -> None:
+        text = (
+            "FINDINGS: Liver lesion is present. "
+            "CONCLUSION: Liver lesion is present; advise MRI abdomen in 3 months."
+        )
+        result = engine.extract_report(text, report_id="R001B")
+        assert result.finding == "liver lesion is present"
+
     def test_negation_no_followup(self, engine: ExtractionEngine) -> None:
         text = (
             "FINDINGS: Normal examination. No acute findings. "

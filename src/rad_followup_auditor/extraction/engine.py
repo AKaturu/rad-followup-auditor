@@ -101,6 +101,19 @@ class ExtractionEngine:
         before = text[max(0, match_start - 75) : match_start]
         sentences = re.split(r"[.!?\n]+", before)
         finding = sentences[-1].strip() if sentences else ""
+        finding = re.sub(
+            r".*\b(?:exam findings|findings|impression|conclusion)\s*:\s*",
+            "",
+            finding,
+            flags=re.IGNORECASE,
+        )
+        finding = re.split(
+            r";|\brecommend(?:ed|ing)?\b|\badvise[sd]?\b|\bsuggest(?:ed|s)?\b|"
+            r"\bconsider\b|\burgent(?:ly)?\b",
+            finding,
+            maxsplit=1,
+            flags=re.IGNORECASE,
+        )[0]
         return normalize_finding(finding) if finding else ""
 
     def extract_report(self, text: str, report_id: str = "") -> ExtractionResult:

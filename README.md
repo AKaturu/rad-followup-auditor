@@ -81,6 +81,31 @@ R002,"FINDINGS: Normal examination. IMPRESSION: No further imaging recommended."
 | `scripts/generate_demo_media.py` | Reproducible README media generator. |
 | `tests/` | Extraction, negation, normalizer, and synthetic data tests. |
 
+## Validation
+
+The repository includes a deterministic 300-report synthetic benchmark corpus at
+`tests/data/validation_reports.csv` and a validation runner:
+
+```bash
+python scripts/build_validation_corpus.py
+python scripts/run_validation.py tests/data/validation_reports.csv outputs/validation
+```
+
+Current synthetic benchmark results:
+
+| Metric | Value |
+|---|---:|
+| Reports | 300 |
+| Recommendation sensitivity | 1.000 |
+| Recommendation precision | 0.934 |
+| Recommendation F1 | 0.966 |
+| Macro field accuracy | 0.788 |
+| Exact all-field match | 0.223 |
+
+See [docs/validation/validation_report.md](docs/validation/validation_report.md) for field-level
+metrics, category summaries, limitations, and next validation steps. These results are useful for
+regression testing and method transparency, but they are not clinical performance claims.
+
 ## Demo Media
 
 The README animation is generated from a real synthetic CLI demo run:
