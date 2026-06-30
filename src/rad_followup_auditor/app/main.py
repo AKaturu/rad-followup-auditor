@@ -107,6 +107,12 @@ def _display_analysis(analysis) -> None:
         file_name="extracted_results.csv",
         mime="text/csv",
     )
+    st.download_button(
+        "Download Full Results (JSON)",
+        data=df.to_json(orient="records", indent=2).encode("utf-8"),
+        file_name="extracted_results.json",
+        mime="application/json",
+    )
 
 
 tab_demo, tab_upload, tab_report = st.tabs(

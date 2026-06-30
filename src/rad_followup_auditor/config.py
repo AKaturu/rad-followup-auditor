@@ -164,6 +164,8 @@ class ExtractionConfig:
     negation_radius_chars: int = 30
     high_confidence_threshold: float = 0.8
     medium_confidence_threshold: float = 0.5
+    custom_recommendation_patterns: tuple[str, ...] = ()
+    exclude_patterns: tuple[str, ...] = ()
 
 
 DEFAULT_CONFIG: ExtractionConfig = ExtractionConfig()

@@ -82,6 +82,8 @@ class ExtractionEngine:
     def __init__(self, config: ExtractionConfig | None = None):
         self.config = config or DEFAULT_CONFIG
         self._compiled_modalities = self._build_modality_regex()
+        self._recommendation_patterns = self._build_recommendation_patterns()
+        self._exclude_patterns = self._build_exclude_patterns()
 
     def _build_modality_regex(self) -> re.Pattern:
         terms = sorted(MODALITIES.keys(), key=len, reverse=True)
@@ -89,6 +91,27 @@ class ExtractionEngine:
             r"\b(?:" + "|".join(re.escape(t) for t in terms) + r")\b",
             re.IGNORECASE,
         )
+
+    def _build_recommendation_patterns(self) -> list[dict[str, Any]]:
+        patterns = list(RECOMMENDATION_PATTERNS)
+        for i, pattern in enumerate(self.config.custom_recommendation_patterns, start=1):
+            patterns.append(
+                {
+                    "label": f"custom_recommendation_{i}",
+                    "pattern": re.compile(pattern, re.IGNORECASE),
+                    "weight": 1.05,
+                }
+            )
+        return patterns
+
+    def _build_exclude_patterns(self) -> list[dict[str, Any]]:
+        return [
+            {
+                "label": f"custom_exclude_{i}",
+                "pattern": re.compile(pattern, re.IGNORECASE),
+            }
+            for i, pattern in enumerate(self.config.exclude_patterns, start=1)
+        ]
 
     def _extract_modality(self, text: str) -> str | None:
         match = self._compiled_modalities.search(text)
@@ -127,6 +150,14 @@ class ExtractionEngine:
             result.negation_context = "empty_report"
             return result
 
+        excluded = self._find_exclusion(text)
+        if excluded is not None:
+            result.has_explicit_recommendation = False
+            result.review_required = False
+            result.confidence = "high"
+            result.negation_context = f"excluded_by_{excluded}"
+            return result
+
         rec_type = classify_recommendation_type(text)
 
         if rec_type == "negative":
@@ -141,7 +172,7 @@ class ExtractionEngine:
         best_rec_start = -1
         best_score = 0.0
 
-        for pat_def in RECOMMENDATION_PATTERNS:
+        for pat_def in self._recommendation_patterns:
             for match in pat_def["pattern"].finditer(text):
                 matched = match.group()
                 start = match.start()
@@ -219,6 +250,12 @@ class ExtractionEngine:
         from .negation import check_negation as cn
 
         return cn(text, -1, self.config.negation_radius_chars)
+
+    def _find_exclusion(self, text: str) -> str | None:
+        for pattern in self._exclude_patterns:
+            if pattern["pattern"].search(text):
+                return str(pattern["label"])
+        return None
 
     def extract_dataframe(
         self, df: pd.DataFrame, text_column: str = COL_REPORT_TEXT

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -175,3 +176,34 @@ def run_analysis(
         summary=summary,
         stats=stats,
     )
+
+
+def write_json_outputs(
+    extracted: pd.DataFrame,
+    summary: pd.DataFrame,
+    output_dir: str | Path,
+    *,
+    stats: dict | None = None,
+) -> dict[str, Path]:
+    output = Path(output_dir)
+    output.mkdir(parents=True, exist_ok=True)
+    paths = {
+        "extracted_json": output / "extracted_results.json",
+        "summary_json": output / "extraction_summary.json",
+    }
+    extracted.to_json(
+        paths["extracted_json"],
+        orient="records",
+        indent=2,
+        date_format="iso",
+    )
+    summary.to_json(
+        paths["summary_json"],
+        orient="records",
+        indent=2,
+        date_format="iso",
+    )
+    if stats is not None:
+        paths["stats_json"] = output / "extraction_stats.json"
+        paths["stats_json"].write_text(json.dumps(stats, indent=2) + "\n", encoding="utf-8")
+    return paths

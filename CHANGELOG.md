@@ -7,6 +7,8 @@
 - Synthetic 300-report validation benchmark corpus.
 - Validation runner with accuracy, precision, recall, F1, category summaries, and confusion matrix outputs.
 - Validation benchmark documentation under `docs/validation/`.
+- JSON extraction, summary, and stats outputs for CLI/dashboard workflows.
+- Custom recommendation regex and false-positive exclude-list support.
 
 ### Improved
 

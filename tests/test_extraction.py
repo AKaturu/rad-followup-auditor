@@ -7,6 +7,7 @@ from rad_followup_auditor.config import (
     COL_HAS_EXPLICIT_RECOMMENDATION,
     COL_IS_NEGATED,
     COL_RECOMMENDATION_TEXT,
+    ExtractionConfig,
 )
 from rad_followup_auditor.extraction import ExtractionEngine, extract_all
 
@@ -152,6 +153,33 @@ class TestExtractionEngine:
         assert result.iloc[0][COL_IS_NEGATED]
         assert result.iloc[1][COL_HAS_EXPLICIT_RECOMMENDATION]
         assert not result.iloc[2][COL_HAS_EXPLICIT_RECOMMENDATION]
+
+    def test_custom_recommendation_pattern(self) -> None:
+        engine = ExtractionEngine(
+            ExtractionConfig(custom_recommendation_patterns=(r"next chest CT is due",))
+        )
+        text = (
+            "FINDINGS: Small pulmonary nodule. "
+            "IMPRESSION: Next chest CT is due for surveillance."
+        )
+        result = engine.extract_report(text, report_id="R-CUSTOM")
+        assert result.has_explicit_recommendation
+        assert result.recommendation_text == "Next chest CT is due"
+        assert result.recommended_modality == "CT"
+
+    def test_exclude_pattern_suppresses_false_positive(self) -> None:
+        engine = ExtractionEngine(
+            ExtractionConfig(exclude_patterns=(r"follow-up at the discretion of oncology",))
+        )
+        text = (
+            "FINDINGS: Stable postoperative change. "
+            "IMPRESSION: Follow-up at the discretion of oncology."
+        )
+        result = engine.extract_report(text, report_id="R-EXCLUDE")
+        assert not result.has_explicit_recommendation
+        assert not result.review_required
+        assert result.negation_context is not None
+        assert result.negation_context.startswith("excluded_by_custom_exclude")
 
 
 class TestExtractAll:
