@@ -8,6 +8,7 @@ from typer.testing import CliRunner
 
 from rad_followup_auditor.analysis import compute_summary, load_and_extract, write_json_outputs
 from rad_followup_auditor.cli import app
+from rad_followup_auditor.review import cohen_kappa, reviewer_agreement, write_review_template
 from rad_followup_auditor.rules import load_extraction_config
 
 
@@ -114,3 +115,63 @@ def test_load_and_extract_with_text_exclude(tmp_path: Path) -> None:
 
     assert not extracted.iloc[0]["has_explicit_recommendation"]
     assert summary.loc[summary["metric"] == "Reports with recommendations", "value"].iloc[0] == 0
+
+
+def test_write_review_template_from_extraction_output(tmp_path: Path) -> None:
+    extracted = tmp_path / "extracted.csv"
+    extracted.write_text(
+        "report_id,report_text,has_explicit_recommendation,urgency\n"
+        'R1,"Recommend CT in 6 months.",True,routine\n',
+        encoding="utf-8",
+    )
+    output = write_review_template(extracted, tmp_path / "reviewer_a.csv", reviewer_id="A")
+    rows = pd.read_csv(output)
+    assert rows.loc[0, "report_id"] == "R1"
+    assert rows.loc[0, "reviewer_id"] == "A"
+    assert bool(rows.loc[0, "predicted_has_followup"])
+    assert "has_followup" in rows.columns
+
+
+def test_cohen_kappa_known_example() -> None:
+    result = cohen_kappa(["yes", "yes", "no", "no"], ["yes", "no", "no", "no"])
+    assert result["observed_agreement"] == 0.75
+    assert result["expected_agreement"] == 0.5
+    assert result["kappa"] == 0.5
+
+
+def test_reviewer_agreement_writes_field_metrics(tmp_path: Path) -> None:
+    reviewer_a = tmp_path / "reviewer_a.csv"
+    reviewer_b = tmp_path / "reviewer_b.csv"
+    reviewer_a.write_text(
+        "report_id,has_followup,urgency,interval_present\n"
+        "R1,yes,routine,yes\n"
+        "R2,no,<blank>,no\n"
+        "R3,yes,urgent,yes\n",
+        encoding="utf-8",
+    )
+    reviewer_b.write_text(
+        "report_id,has_followup,urgency,interval_present\n"
+        "R1,yes,routine,yes\n"
+        "R2,no,<blank>,yes\n"
+        "R3,no,urgent,yes\n",
+        encoding="utf-8",
+    )
+    payload = reviewer_agreement(reviewer_a, reviewer_b, tmp_path / "agreement.json")
+    assert payload["report_count"] == 3
+    assert payload["reviewer_a"] == "reviewer_a.csv"
+    assert payload["fields"]["urgency"]["kappa"] == 1.0
+    assert payload["fields"]["has_followup"]["n"] == 3
+    assert (tmp_path / "agreement.json").exists()
+
+
+def test_reviewer_agreement_requires_same_report_ids(tmp_path: Path) -> None:
+    reviewer_a = tmp_path / "reviewer_a.csv"
+    reviewer_b = tmp_path / "reviewer_b.csv"
+    reviewer_a.write_text("report_id,has_followup,urgency,interval_present\nR1,yes,routine,yes\n", encoding="utf-8")
+    reviewer_b.write_text("report_id,has_followup,urgency,interval_present\nR2,yes,routine,yes\n", encoding="utf-8")
+    try:
+        reviewer_agreement(reviewer_a, reviewer_b, tmp_path / "agreement.json")
+    except ValueError as exc:
+        assert "same report_id" in str(exc)
+    else:  # pragma: no cover - defensive assertion
+        raise AssertionError("reviewer_agreement accepted mismatched report IDs")

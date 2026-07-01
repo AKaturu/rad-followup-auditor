@@ -54,6 +54,14 @@ rad-followup-auditor extract --csv reports.csv --output outputs/extract \
 `local_rules.json` may contain `recommendation_patterns` and `exclude_patterns`.
 Plain text exclude files are also supported with one regex per line.
 
+For reviewer-adjudicated validation, create reviewer templates and compute agreement:
+
+```bash
+rad-followup-auditor review-template outputs/extract/extracted_results.csv reviewer_a.csv --reviewer-id A
+rad-followup-auditor review-template outputs/extract/extracted_results.csv reviewer_b.csv --reviewer-id B
+rad-followup-auditor reviewer-agreement reviewer_a.csv reviewer_b.csv reviewer_agreement.json
+```
+
 ## Input CSV Format
 
 ```csv
@@ -126,6 +134,7 @@ See [docs/release.md](docs/release.md) for release steps.
 |---|---|
 | Release steps | [docs/release.md](docs/release.md) |
 | Demo media generation | [docs/demo-media.md](docs/demo-media.md) |
+| Human review and agreement | [docs/HUMAN_REVIEW.md](docs/HUMAN_REVIEW.md) |
 | Validation benchmark | [docs/validation/validation_report.md](docs/validation/validation_report.md) |
 | Contribution guide | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Security reporting | [SECURITY.md](SECURITY.md) |
