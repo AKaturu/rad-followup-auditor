@@ -10,9 +10,11 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from .analysis import compute_summary, load_and_extract, run_analysis
+from .analysis import compute_summary, load_and_extract, run_analysis, write_json_outputs
 from .data import write_synthetic_csv
 from .report import generate_report
+from .review import reviewer_agreement, write_review_template
+from .rules import load_extraction_config
 
 app = typer.Typer(
     name="rad-followup-auditor",
@@ -49,6 +51,13 @@ def demo(
     summary_path = output / "extraction_summary.csv"
     analysis.summary.to_csv(summary_path, index=False)
     console.print(f"[green]Wrote summary:[/green] {summary_path}")
+    for name, path in write_json_outputs(
+        analysis.extracted,
+        analysis.summary,
+        output,
+        stats=analysis.stats,
+    ).items():
+        console.print(f"[green]Wrote {name.replace('_', ' ')}:[/green] {path}")
 
     _print_summary_table(analysis.summary)
 
@@ -72,11 +81,20 @@ def extract(
     output: Annotated[Path, typer.Option(help="Output directory.")] = Path(
         "outputs/extract"
     ),
+    custom_patterns: Annotated[
+        Path | None,
+        typer.Option(help="JSON or text file with custom recommendation regexes."),
+    ] = None,
+    exclude_patterns: Annotated[
+        Path | None,
+        typer.Option(help="JSON or text file with false-positive suppression regexes."),
+    ] = None,
 ) -> None:
     """Extract follow-up recommendations from a CSV of reports."""
     output.mkdir(parents=True, exist_ok=True)
 
-    extracted = load_and_extract(csv)
+    config = load_extraction_config(custom_patterns, exclude_patterns)
+    extracted = load_and_extract(csv, config=config)
     extracted_path = output / "extracted_results.csv"
     extracted.to_csv(extracted_path, index=False)
     console.print(f"[green]Wrote extraction results:[/green] {extracted_path}")
@@ -85,6 +103,8 @@ def extract(
     summary_path = output / "extraction_summary.csv"
     summary.to_csv(summary_path, index=False)
     console.print(f"[green]Wrote summary:[/green] {summary_path}")
+    for name, path in write_json_outputs(extracted, summary, output).items():
+        console.print(f"[green]Wrote {name.replace('_', ' ')}:[/green] {path}")
 
     _print_summary_table(summary)
 
@@ -101,11 +121,28 @@ def report_command(
     pdf: Annotated[
         bool, typer.Option("--pdf/--no-pdf", help="Attempt PDF export.")
     ] = True,
+    custom_patterns: Annotated[
+        Path | None,
+        typer.Option(help="JSON or text file with custom recommendation regexes."),
+    ] = None,
+    exclude_patterns: Annotated[
+        Path | None,
+        typer.Option(help="JSON or text file with false-positive suppression regexes."),
+    ] = None,
 ) -> None:
     """Generate an HTML report and optional PDF."""
-    analysis = run_analysis(csv)
+    output.mkdir(parents=True, exist_ok=True)
+    config = load_extraction_config(custom_patterns, exclude_patterns)
+    analysis = run_analysis(csv, config=config)
     extracted_path = output / "extracted_results.csv"
     analysis.extracted.to_csv(extracted_path, index=False)
+    for name, path in write_json_outputs(
+        analysis.extracted,
+        analysis.summary,
+        output,
+        stats=analysis.stats,
+    ).items():
+        console.print(f"[green]Wrote {name.replace('_', ' ')}:[/green] {path}")
 
     artifacts = generate_report(
         analysis,
@@ -138,6 +175,41 @@ def serve(
         str(port),
     ]
     raise typer.Exit(subprocess.run(cmd, check=False).returncode)
+
+
+@app.command("review-template")
+def review_template_command(
+    extracted_csv: Annotated[
+        Path,
+        typer.Argument(help="Extraction output CSV containing report_id and report_text."),
+    ],
+    output_csv: Annotated[Path, typer.Argument(help="Destination reviewer-label CSV.")],
+    reviewer_id: Annotated[
+        str,
+        typer.Option(help="Optional reviewer identifier to prefill."),
+    ] = "",
+) -> None:
+    """Create a human-review labeling template from extraction output."""
+    path = write_review_template(extracted_csv, output_csv, reviewer_id=reviewer_id)
+    console.print(f"[green]Wrote reviewer template:[/green] {path}")
+
+
+@app.command("reviewer-agreement")
+def reviewer_agreement_command(
+    reviewer_a: Annotated[Path, typer.Argument(help="First reviewer-label CSV.")],
+    reviewer_b: Annotated[Path, typer.Argument(help="Second reviewer-label CSV.")],
+    output_json: Annotated[Path, typer.Argument(help="Destination agreement JSON.")],
+    label_columns: Annotated[
+        str,
+        typer.Option(help="Comma-separated label columns to compare."),
+    ] = "has_followup,urgency,interval_present",
+) -> None:
+    """Compute per-field Cohen's kappa for two reviewer-label CSVs."""
+    labels = tuple(part.strip() for part in label_columns.split(",") if part.strip())
+    payload = reviewer_agreement(reviewer_a, reviewer_b, output_json, label_columns=labels)
+    console.print(f"[green]Wrote reviewer agreement:[/green] {output_json}")
+    for field, metrics in payload["fields"].items():
+        console.print(f"  {field}: kappa={metrics['kappa']}")
 
 
 def _print_summary_table(df: pd.DataFrame) -> None:

@@ -31,8 +31,9 @@ This software is a research prototype and is not intended for independent clinic
 - Converts recommendations to structured fields: finding, modality, interval, urgency, anatomic region
 - Detects negated recommendations ("No follow-up needed")
 - Assigns confidence levels and flags cases needing manual review
-- Generates CSV summaries and HTML reports with optional PDF export
-- Streamlit dashboard for interactive review
+- Generates CSV/JSON summaries and HTML reports with optional PDF export
+- Supports local custom recommendation regexes and false-positive exclude lists
+- Streamlit dashboard for interactive review with CSV/JSON downloads
 
 ## Quick Start
 
@@ -40,6 +41,25 @@ This software is a research prototype and is not intended for independent clinic
 pip install -e ".[app]"
 rad-followup-auditor demo --output outputs/demo --n 50 --seed 42 --no-pdf
 rad-followup-auditor serve
+```
+
+Custom local rules can be supplied to CLI extraction:
+
+```bash
+rad-followup-auditor extract --csv reports.csv --output outputs/extract \
+  --custom-patterns local_rules.json \
+  --exclude-patterns false_positive_excludes.txt
+```
+
+`local_rules.json` may contain `recommendation_patterns` and `exclude_patterns`.
+Plain text exclude files are also supported with one regex per line.
+
+For reviewer-adjudicated validation, create reviewer templates and compute agreement:
+
+```bash
+rad-followup-auditor review-template outputs/extract/extracted_results.csv reviewer_a.csv --reviewer-id A
+rad-followup-auditor review-template outputs/extract/extracted_results.csv reviewer_b.csv --reviewer-id B
+rad-followup-auditor reviewer-agreement reviewer_a.csv reviewer_b.csv reviewer_agreement.json
 ```
 
 ## Input CSV Format
@@ -114,6 +134,7 @@ See [docs/release.md](docs/release.md) for release steps.
 |---|---|
 | Release steps | [docs/release.md](docs/release.md) |
 | Demo media generation | [docs/demo-media.md](docs/demo-media.md) |
+| Human review and agreement | [docs/HUMAN_REVIEW.md](docs/HUMAN_REVIEW.md) |
 | Validation benchmark | [docs/validation/validation_report.md](docs/validation/validation_report.md) |
 | Contribution guide | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Security reporting | [SECURITY.md](SECURITY.md) |
